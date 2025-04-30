@@ -83,6 +83,28 @@
       align-items: center;
       margin: 0;
     }
+    #invoicePDFContent {
+      font-family: Helvetica, Arial, sans-serif;
+      font-size: 12pt;
+      margin: 1in;
+    }
+    #invoicePDFContent h2 {
+      font-family: Helvetica, Arial, sans-serif;
+      font-weight: bold;
+      font-size: 16pt;
+      margin-bottom: 20px;
+    }
+    #invoicePDFContent p {
+      margin: 4px 0;
+    }
+    #invoicePDFContent .section {
+      margin-bottom: 20px;
+    }
+    #invoicePDFContent .line-item {
+      font-family: 'Fira Code', monospace;
+      display: flex;
+      justify-content: space-between;
+    }
   </style>
 </head>
 <body>
@@ -125,10 +147,10 @@
   <option value="1.1">Non-Exclusive (1.1x)</option>
 </select>
 
-<button onclick="calculateUsage()">Calculate Usage Fee</button>
+<button id="calculateBtn">Calculate Usage Fee</button>
 
 <div id="result"></div>
-<button onclick="showInvoiceForm()" style="display:none;" id="generateBtn">Generate Invoice</button>
+<button id="generateBtn" style="display:none;">Generate Invoice</button>
 
 <div id="invoiceForm">
   <button class="closeBtn" onclick="closeInvoiceForm()">X</button>
@@ -149,17 +171,34 @@
 </div>
 
 <div id="invoicePreview" style="display:none;">
-  <h2>Invoice</h2>
-  <p><strong>Date:</strong> <span id="outDate"></span></p>
-  <p><strong>Invoice #:</strong> <span id="outInvNum"></span></p>
-  <p><strong>Client:</strong> <span id="outClient"></span></p>
-  <p><strong>Project Description:</strong> <span id="outDesc"></span></p>
-  <p><strong>Suggested Usage Fee:</strong> $<span id="usageFee"></span></p>
-  <p><strong>Total Project Fee:</strong> $<span id="totalFee"></span></p>
+  <div id="invoicePDFContent">
+    <h2>Invoice</h2>
+    <div class="section">
+      <p><strong>Date:</strong> <span id="outDate"></span></p>
+      <p><strong>Invoice #:</strong> <span id="outInvNum"></span></p>
+    </div>
+    <div class="section">
+      <p><strong>Client:</strong> <span id="outClient"></span></p>
+      <p><strong>Project Description:</strong> <span id="outDesc"></span></p>
+    </div>
+    <div class="section">
+      <div class="line-item"><span>Suggested Usage Fee:</span> <span>$<span id="usageFee"></span></span></div>
+      <div class="line-item"><span>Total Project Fee:</span> <span>$<span id="totalFee"></span></span></div>
+    </div>
+  </div>
 </div>
 
 <script>
 let totalUsageFee = 0;
+
+function updateInvoicePreview() {
+  document.getElementById('outDate').innerText = document.getElementById('date').value;
+  document.getElementById('outInvNum').innerText = document.getElementById('invoiceNumber').value;
+  document.getElementById('outClient').innerText = `${document.getElementById('clientName').value} (${document.getElementById('clientCompany').value})`;
+  document.getElementById('outDesc').innerText = document.getElementById('projectDesc').value;
+  document.getElementById('usageFee').innerText = totalUsageFee;
+  document.getElementById('totalFee').innerText = parseFloat(document.getElementById('baseFee').value) + totalUsageFee;
+}
 
 function calculateUsage() {
   const base = parseFloat(document.getElementById('baseFee').value);
@@ -183,11 +222,13 @@ function calculateUsage() {
   `;
 
   document.getElementById('generateBtn').style.display = "inline-block";
+  updateInvoicePreview();
 }
 
 function showInvoiceForm() {
   document.getElementById('invoiceForm').style.display = 'block';
   document.addEventListener('keydown', escCloseHandler);
+  updateInvoicePreview();
 }
 
 function closeInvoiceForm() {
@@ -202,19 +243,14 @@ function escCloseHandler(e) {
 }
 
 function generateInvoicePreview() {
-  document.getElementById('outDate').innerText = document.getElementById('date').value;
-  document.getElementById('outInvNum').innerText = document.getElementById('invoiceNumber').value;
-  document.getElementById('outClient').innerText = `${document.getElementById('clientName').value} (${document.getElementById('clientCompany').value})`;
-  document.getElementById('outDesc').innerText = document.getElementById('projectDesc').value;
-  document.getElementById('usageFee').innerText = totalUsageFee;
-  document.getElementById('totalFee').innerText = parseFloat(document.getElementById('baseFee').value) + totalUsageFee;
+  updateInvoicePreview();
   document.getElementById('invoicePreview').style.display = 'block';
 }
 
 function downloadPDF() {
   generateInvoicePreview();
 
-  html2pdf().from(document.getElementById('invoicePreview')).set({
+  html2pdf().from(document.getElementById('invoicePDFContent')).set({
     margin: 1,
     filename: 'image-usage-invoice.pdf',
     html2canvas: { scale: 2 },
@@ -223,6 +259,20 @@ function downloadPDF() {
 
   setTimeout(() => { document.getElementById('invoicePreview').style.display = 'none'; }, 1000);
 }
+
+document.addEventListener("DOMContentLoaded", () => {
+  document.getElementById('calculateBtn').addEventListener('click', calculateUsage);
+  document.getElementById('generateBtn').addEventListener('click', showInvoiceForm);
+
+  const invoiceFields = [
+    'date', 'invoiceNumber', 'clientName', 'clientCompany', 'clientEmail', 'clientPhone',
+    'yourName', 'yourPhone', 'yourEmail', 'yourAddress', 'projectDesc'
+  ];
+
+  invoiceFields.forEach(id => {
+    document.getElementById(id).addEventListener('input', updateInvoicePreview);
+  });
+});
 </script>
 
 </body>
