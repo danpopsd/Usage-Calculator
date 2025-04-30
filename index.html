@@ -248,42 +248,129 @@
             overlay.innerHTML = modalContent;
             document.body.appendChild(overlay);
         }
+        <script>
+  function openInvoiceWindow() {
+    const modalContent = `
+      <div class="modal-content">
+        <h3>Generate Invoice</h3>
 
-        function generateInvoice() {
-            const invoiceType = document.getElementById('invoiceType').value;
-            const date = document.getElementById('date').value;
-            const projectDescription = document.getElementById('projectDescription').value;
-            const clientName = document.getElementById('clientName').value;
-            const yourName = document.getElementById('yourName').value;
-            const phone = document.getElementById('phone').value;
-            const email = document.getElementById('email').value;
-            const address = document.getElementById('address').value;
-            const clientPhone = document.getElementById('clientPhone').value;
-            const clientEmail = document.getElementById('clientEmail').value;
-            const clientAddress = document.getElementById('clientAddress').value;
+        <label for="invoiceType">Invoice Type:</label>
+        <select id="invoiceType">
+          <option value="invoice">Invoice</option>
+          <option value="estimate">Estimate</option>
+        </select>
 
-            const invoiceData = `
-                Invoice Type: ${invoiceType}\n
-                Date: ${date}\n
-                Project Description: ${projectDescription}\n
-                Client Name: ${clientName}\n
-                Your Name: ${yourName}\n
-                Phone: ${phone}\n
-                Email: ${email}\n
-                Address: ${address}\n
-                Client Phone: ${clientPhone}\n
-                Client Email: ${clientEmail}\n
-                Client Address: ${clientAddress}
-            `;
+        <label for="date">Date:</label>
+        <input type="date" id="date">
 
-            const blob = new Blob([invoiceData], { type: 'text/plain' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'invoice.txt';
-            a.click();
-        }
-    </script>
+        <label for="companyName">Company Name:</label>
+        <input type="text" id="companyName" placeholder="Enter Company Name">
 
-</body>
-</html>
+        <label for="clientName">Client Name:</label>
+        <input type="text" id="clientName" placeholder="Enter Client Name">
+
+        <div class="input-group">
+          <div>
+            <label>Your Name:</label>
+            <input type="text" id="yourName" placeholder="Your Name">
+          </div>
+          <div>
+            <label>Your Phone:</label>
+            <input type="text" id="phone" placeholder="Your Phone Number">
+          </div>
+        </div>
+
+        <div class="input-group">
+          <div>
+            <label>Your Email:</label>
+            <input type="email" id="email" placeholder="Your Email">
+          </div>
+          <div>
+            <label>Your Address:</label>
+            <input type="text" id="address" placeholder="Your Address">
+          </div>
+        </div>
+
+        <div class="input-group">
+          <div>
+            <label>Client Phone:</label>
+            <input type="text" id="clientPhone" placeholder="Client Phone">
+          </div>
+          <div>
+            <label>Client Email:</label>
+            <input type="email" id="clientEmail" placeholder="Client Email">
+          </div>
+        </div>
+
+        <div class="input-group">
+          <div>
+            <label>Client Address:</label>
+            <input type="text" id="clientAddress" placeholder="Client Address">
+          </div>
+        </div>
+
+        <div>
+          <label for="projectDescription">Project Description:</label>
+          <textarea id="projectDescription" placeholder="Enter project description"></textarea>
+        </div>
+
+        <button onclick="generateInvoice()">Generate Invoice</button>
+      </div>
+    `;
+
+    const overlay = document.createElement('div');
+    overlay.classList.add('modal');
+    overlay.innerHTML = modalContent;
+    document.body.appendChild(overlay);
+  }
+
+  function generateInvoice() {
+    const invoiceType = document.getElementById("invoiceType").value;
+    const date = document.getElementById("date").value;
+    const companyName = document.getElementById("companyName").value;
+    const clientName = document.getElementById("clientName").value;
+    const clientPhone = document.getElementById("clientPhone").value;
+    const clientEmail = document.getElementById("clientEmail").value;
+    const clientAddress = document.getElementById("clientAddress").value;
+    const yourName = document.getElementById("yourName").value;
+    const phone = document.getElementById("phone").value;
+    const email = document.getElementById("email").value;
+    const address = document.getElementById("address").value;
+    const projectDescription = document.getElementById("projectDescription").value;
+    
+    // Get the calculated usage fee value (from earlier calculation)
+    const usageFee = parseFloat(document.getElementById("result").textContent.match(/\d+\.\d+/)[0]);
+
+    const doc = new jsPDF();
+    doc.setFont("Helvetica");
+    
+    // Title
+    doc.setFontSize(22);
+    doc.text(`${invoiceType.charAt(0).toUpperCase() + invoiceType.slice(1)}`, 20, 20);
+
+    // Invoice Header
+    doc.setFontSize(16);
+    doc.text(`Date: ${date}`, 20, 30);
+    doc.text(`Company: ${companyName}`, 20, 40);
+    doc.text(`Client: ${clientName}`, 20, 50);
+    doc.text(`Project Description: ${projectDescription}`, 20, 60);
+
+    // Your Information
+    doc.setFontSize(12);
+    doc.text(`Your Name: ${yourName}`, 20, 80);
+    doc.text(`Your Phone: ${phone}`, 20, 90);
+    doc.text(`Your Email: ${email}`, 20, 100);
+    doc.text(`Your Address: ${address}`, 20, 110);
+
+    // Client Information
+    doc.text(`Client Phone: ${clientPhone}`, 20, 130);
+    doc.text(`Client Email: ${clientEmail}`, 20, 140);
+    doc.text(`Client Address: ${clientAddress}`, 20, 150);
+
+    // Fee Breakdown
+    doc.text(`Usage Fee: $${usageFee.toFixed(2)}`, 20, 170);
+
+    // Save PDF
+    doc.save(`${invoiceType.charAt(0).toUpperCase() + invoiceType.slice(1)}_${clientName}_${date}.pdf`);
+  }
+</script>
