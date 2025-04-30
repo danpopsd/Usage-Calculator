@@ -1,190 +1,169 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Image Licensing Calculator</title>
-  <link href="https://fonts.googleapis.com/css2?family=Fira+Code&display=swap" rel="stylesheet">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Usage License Calculator</title>
   <style>
     body {
-      font-family: 'Helvetica', 'Arial', sans-serif;
-      background-color: #ffffff;
-      padding: 40px;
-      color: #000000;
+      background-color: #fff;
+      color: #333;
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 2rem;
     }
-    h1 {
-      font-family: 'Helvetica', 'Arial', sans-serif;
-      font-weight: bold;
-      font-size: 24px;
-      margin-bottom: 20px;
+    h1, h2 {
+      color: #222;
     }
-    label {
-      margin-top: 20px;
-      font-weight: bold;
+    label, select, input {
       display: block;
-    }
-    input[type="number"], textarea, button, select {
+      margin-bottom: 1rem;
       width: 100%;
-      padding: 12px;
-      margin-top: 6px;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      font-size: 16px;
-      background-color: #f5f5f5;
-      color: #000;
-      transition: box-shadow 0.3s ease;
-      font-family: 'Fira Code', monospace;
+      max-width: 400px;
     }
-    input:hover, textarea:hover, button:hover, select:hover {
-      box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 2rem;
     }
-    button {
-      background-color: #333;
-      color: #fff;
-      font-weight: bold;
-      cursor: pointer;
-      margin-top: 30px;
-      border: none;
+    th, td {
+      border-bottom: 1px solid #ccc;
+      padding: 0.75rem;
+      text-align: left;
     }
-    button:hover {
-      background-color: #555;
+    .invoice-section {
+      margin-top: 3rem;
     }
-    .result {
-      margin-top: 30px;
-      font-size: 18px;
-      font-family: 'Fira Code', monospace;
-      font-weight: bold;
-      background-color: #eaeaea;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+    .invoice-header {
+      margin-bottom: 1rem;
     }
-    .checkbox-group {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      margin-top: 10px;
+    .invoice-table {
+      margin-top: 1rem;
     }
   </style>
 </head>
+
 <body>
-  <h1>Usage / Image Licensing Calculator</h1>
+  <h1>Usage License Calculator</h1>
 
-  <label for="creativeFee">Creative Fee ($):</label>
-  <input type="number" id="creativeFee" placeholder="Enter shoot fee" />
+  <label>
+    Shoot Fee (Base Rate):
+    <input type="number" id="baseFee" placeholder="$3000" />
+  </label>
 
-  <label for="experience">Experience Level:</label>
-  <select id="experience">
-    <option value="1">Entry (1x)</option>
-    <option value="1.25">Mid-Level (1.25x)</option>
-    <option value="1.5">Experienced (1.5x)</option>
-    <option value="2">Top-Tier (2x)</option>
-  </select>
+  <label>
+    Term:
+    <select id="term">
+      <option value="0.0">1 year or less</option>
+      <option value="0.15">Over 1 year</option>
+    </select>
+  </label>
 
-  <label for="term">Usage Term Duration:</label>
-  <select id="term">
-    <option value="0.5">3 Months</option>
-    <option value="0.75">6 Months</option>
-    <option value="1">1 Year</option>
-    <option value="1.5">2 Years</option>
-    <option value="2.5">Perpetual</option>
-  </select>
+  <label>
+    Distribution:
+    <select id="distribution">
+      <option value="0.0">Organic Web</option>
+      <option value="1.0">Billboard</option>
+      <option value="1.5">International</option>
+    </select>
+  </label>
 
-  <label>Distribution Format (Select all that apply):</label>
-  <div class="checkbox-group" id="mediaCheckboxes">
-    <label><input type="checkbox" value="web"> Web (Organic)</label>
-    <label><input type="checkbox" value="0.4"> Social Media</label>
-    <label><input type="checkbox" value="0.7"> Digital Ads</label>
-    <label><input type="checkbox" value="0.8"> Print</label>
-    <label><input type="checkbox" value="1.0"> Billboard</label>
-    <label><input type="checkbox" value="1.8"> TV / Streaming</label>
+  <label>
+    Usage Type:
+    <select id="usage">
+      <option value="0.3">Digital Ad</option>
+      <option value="0.5">Print Ad</option>
+      <option value="0.7">TV/Streaming</option>
+    </select>
+  </label>
+
+  <button onclick="calculateUsageLicense()">Calculate License Fee</button>
+  <h2 id="result">Usage License Fee: —</h2>
+
+  <div class="invoice-section">
+    <h2>Invoice Generator</h2>
+
+    <label>Your Name:
+      <input type="text" id="yourName" placeholder="Daniel Pop" />
+    </label>
+    <label>Your Contact Info:
+      <input type="text" id="yourContact" placeholder="danpopsd@example.com" />
+    </label>
+    <label>Your Address:
+      <input type="text" id="yourAddress" placeholder="City, ZIP / Postal Code" />
+    </label>
+    <label>Client Name:
+      <input type="text" id="clientName" placeholder="Client Co." />
+    </label>
+    <label>Client Contact:
+      <input type="text" id="clientContact" placeholder="client@example.com" />
+    </label>
+    <label>Project Title:
+      <input type="text" id="projectTitle" placeholder="Campaign Title" />
+    </label>
+    <label>Payment Terms:
+      <select id="paymentTerms">
+        <option value="Due on receipt">Due on receipt</option>
+        <option value="Net 30">Net 30</option>
+        <option value="Net 60">Net 60</option>
+        <option value="Net 90">Net 90</option>
+      </select>
+    </label>
+
+    <button onclick="generateInvoice()">Generate Invoice</button>
+
+    <div id="invoiceOutput"></div>
   </div>
 
-  <label for="geo">Geographic Scope:</label>
-  <select id="geo">
-    <option value="0">Local</option>
-    <option value="0.25">Regional</option>
-    <option value="0.6">National</option>
-    <option value="1.5">International</option>
-  </select>
-
-  <label for="exclusivity">Exclusivity:</label>
-  <select id="exclusivity">
-    <option value="0">None</option>
-    <option value="0.6">Industry Exclusive</option>
-    <option value="1.2">Full Exclusive</option>
-  </select>
-
-  <label for="invoiceInfo">Your Invoice Information:</label>
-  <textarea id="invoiceInfo" rows="5" placeholder="Your name, business name, email, phone number, address, etc."></textarea>
-
-  <button onclick="calculateFee()">Calculate Licensing Fee</button>
-  <button onclick="exportEstimate()">Export Estimate</button>
-  <button onclick="exportPDF()">Download PDF</button>
-
-  <div class="result" id="result"></div>
-
   <script>
-    let lastCalculation = '';
+    function calculateUsageLicense() {
+      const base = parseFloat(document.getElementById("baseFee").value) || 0;
+      const term = parseFloat(document.getElementById("term").value);
+      const distribution = parseFloat(document.getElementById("distribution").value);
+      const usage = parseFloat(document.getElementById("usage").value);
 
-    function calculateFee() {
-      const creativeFee = parseFloat(document.getElementById('creativeFee').value);
-      const experienceMultiplier = parseFloat(document.getElementById('experience').value);
-      const termMultiplier = parseFloat(document.getElementById('term').value);
-      const geoMultiplier = parseFloat(document.getElementById('geo').value);
-      const exclusivityMultiplier = parseFloat(document.getElementById('exclusivity').value);
+      const multiplier = 1 + term + distribution + usage;
+      const licenseFee = base * multiplier;
 
-      let mediaMultiplier = 0;
-      const checkboxes = document.querySelectorAll('#mediaCheckboxes input[type="checkbox"]');
-      checkboxes.forEach(cb => {
-        if (cb.checked) {
-          if (cb.value === "web") {
-            if (termMultiplier <= 1) {
-              mediaMultiplier += 0;
-            } else {
-              mediaMultiplier += 0.15;
-            }
-          } else {
-            mediaMultiplier += parseFloat(cb.value);
-          }
-        }
-      });
-
-      const totalMultiplier = (1 + termMultiplier + mediaMultiplier + geoMultiplier + exclusivityMultiplier) * experienceMultiplier;
-      const licensingFee = creativeFee * totalMultiplier;
-      const totalFee = creativeFee + licensingFee;
-
-      lastCalculation = `Licensing Fee: $${licensingFee.toFixed(2)}\nTotal Fee (including creative): $${totalFee.toFixed(2)}`;
-      document.getElementById('result').innerHTML = lastCalculation.replace(/\n/g, '<br>');
+      document.getElementById("result").textContent = `Usage License Fee: $${licenseFee.toFixed(2)}`;
     }
 
-    function exportEstimate() {
-      const invoiceInfo = document.getElementById('invoiceInfo').value;
-      const blob = new Blob([
-        `Image Licensing Estimate\n\n${invoiceInfo}\n\n${lastCalculation}`
-      ], { type: 'text/plain;charset=utf-8' });
+    function generateInvoice() {
+      const name = document.getElementById("yourName").value;
+      const contact = document.getElementById("yourContact").value;
+      const address = document.getElementById("yourAddress").value;
+      const client = document.getElementById("clientName").value;
+      const clientEmail = document.getElementById("clientContact").value;
+      const projectTitle = document.getElementById("projectTitle").value;
+      const paymentTerms = document.getElementById("paymentTerms").value;
 
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = 'usage_estimate.txt';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(a.href);
-    }
+      const date = new Date().toLocaleDateString();
+      const licenseFee = document.getElementById("result").textContent.split("$")[1] || "0.00";
 
-    async function exportPDF() {
-      const { jsPDF } = window.jspdf;
-      const doc = new jsPDF();
+      document.getElementById("invoiceOutput").innerHTML = `
+        <div class="invoice-header">
+          <strong>${name}</strong><br />
+          ${contact}<br />
+          ${address}<br /><br />
 
-      const invoiceInfo = document.getElementById('invoiceInfo').value;
-      const estimateText = `Image Licensing Estimate\n\n${invoiceInfo}\n\n${lastCalculation}`;
+          <strong>Invoice Date:</strong> ${date}<br />
+          <strong>Invoice Number:</strong> 1<br />
+        </div>
 
-      const lines = doc.splitTextToSize(estimateText, 180);
-      doc.text(lines, 15, 20);
+        <div><strong>Billed to:</strong><br />${client}<br />${clientEmail}</div>
+        <div><strong>Project:</strong> ${projectTitle}</div>
+        <div><strong>Payment Terms:</strong> ${paymentTerms}</div>
 
-      doc.save('usage_estimate.pdf');
+        <table class="invoice-table">
+          <thead>
+            <tr><th>Item</th><th>Qty</th><th>Unit Price</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Usage License Fee</td><td>1</td><td>$${licenseFee}</td></tr>
+          </tbody>
+        </table>
+      `;
     }
   </script>
 </body>
